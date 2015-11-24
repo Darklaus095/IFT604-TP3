@@ -1,0 +1,13 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-war" name="IFT604-TP3">
+    <output-path>$PROJECT_DIR$/out/artifacts/IFT604_TP3</output-path>
+    <root id="root">
+      <element id="javaee-facet-resources" facet="IFT604-TP3/web/Web" />
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="IFT604-TP3" />
+        </element>
+      </element>
+    </root>
+  </artifact>
+</component>
