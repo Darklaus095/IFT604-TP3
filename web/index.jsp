@@ -14,11 +14,11 @@
         var eventSource = new EventSource("NotificationServlet");
 
         eventSource.onmessage = function (event) {
-            $("#notification-section").prepend("<p>" + event.data + "</p>")
+            $("#notification-section").prepend("<p>" + event.data + "</p>");
         };
 
         eventSource.addEventListener('up_vote', function (event) {
-
+            $("#notification-section").prepend("<p>" + event.data + "</p>");
         }, false);
 
         var gameSection = $("#game-section");
