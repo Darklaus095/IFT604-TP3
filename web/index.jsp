@@ -54,6 +54,7 @@
             post("getGame", {gameID: gameID}, function (data) {
                 gameSection.removeClass("hidden");
 
+                var obj = jQuery.parseJSON(data);
                 $("#game-section-title").innerHTML = data.title;
                 $("#host-name").innerHTML = data.host;
                 $("#host-goals").innerHTML = data.hostGoals;
@@ -67,6 +68,8 @@
         }
 
         post("getGames", {}, function (data) {
+            var obj = jQuery.parseJSON(data);
+            
             $.each(data, function (i, obj) {
                 var btnGame = $("<button>");
                 btnGame.innerHTML = obj.toString();
