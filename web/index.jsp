@@ -14,7 +14,11 @@
         var eventSource = new EventSource("NotificationServlet");
 
         eventSource.onmessage = function (event) {
-            $("#notification-section").prepend("<p>" + event.data + "</p>");
+            var notificationSection = $("#notification-section");
+            var obj = jQuery.parseJSON(event.data);
+            notificationSection.prepend("<p>" + event.data + "</p>");
+            if(notificationSection.children().length > 10)
+                notificationSection.children().last().remove();
         };
 
         eventSource.addEventListener('up_vote', function (event) {
@@ -69,7 +73,7 @@
 
         post("getGames", {}, function (data) {
             var obj = jQuery.parseJSON(data);
-            
+
             $.each(data, function (i, obj) {
                 var btnGame = $("<button>");
                 btnGame.innerHTML = obj.toString();
