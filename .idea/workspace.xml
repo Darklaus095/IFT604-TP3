@@ -1038,7 +1038,7 @@
       <option name="number" value="Default" />
       <updated>1448378897591</updated>
       <workItem from="1448378901639" duration="2886000" />
-      <workItem from="1448382776750" duration="13196000" />
+      <workItem from="1448382776750" duration="13830000" />
     </task>
     <task id="LOCAL-00001" summary="Added Jave EE 6 to libs">
       <created>1448408041704</created>
@@ -1082,11 +1082,17 @@
       <option name="project" value="LOCAL" />
       <updated>1448496662122</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Added get game info &amp; place bet on service.">
+      <created>1448497991354</created>
+      <option name="number" value="00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1448497991354</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="16082000" />
+    <option name="totallyTimeSpent" value="16716000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1932" height="1056" extended-state="0" />
@@ -1139,7 +1145,8 @@
     <MESSAGE value="Created basic class for server service." />
     <MESSAGE value="Added logging libraries. Added basic GSOn calls from a servlet." />
     <MESSAGE value="Added simple logger. Added prettyfier gson builder." />
-    <option name="LAST_COMMIT_MESSAGE" value="Added simple logger. Added prettyfier gson builder." />
+    <MESSAGE value="Added get game info &amp; place bet on service." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added get game info &amp; place bet on service." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
