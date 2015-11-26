@@ -6,13 +6,4 @@
 	<listener>
 		<listener-class>Listeners.StartupListener</listener-class>
 	</listener>
-	<servlet>
-		<display-name>NotificationServlet</display-name>
-		<servlet-name>NotificationServlet</servlet-name>
-		<servlet-class>Servlets.NotificationServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>NotificationServlet</servlet-name>
-		<url-pattern>/NotificationServlet</url-pattern>
-	</servlet-mapping>
 </web-app>
