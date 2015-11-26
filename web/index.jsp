@@ -17,10 +17,13 @@
 
         eventSource.onmessage = function (event) {
             var notificationSection = $("#notification-section");
-            var obj = jQuery.parseJSON(event.data);
+            //var obj = jQuery.parseJSON(event.data);
+
             notificationSection.prepend("<p>" + event.data + "</p>");
             if(notificationSection.children().length > 10)
                 notificationSection.children().last().remove();
+
+            alert(event.data);
         };
 
         eventSource.addEventListener('up_vote', function (event) {
@@ -66,7 +69,8 @@
             }
         }
 
-        $("#btn-bet").onclick(bet);
+        $("#btn-bet").click(bet);
+        $("#btn-refresh").click(refresh);
 
         var formatTime = function(timeInSeconds) {
             return timeInSeconds / 60 + ":" + ("0" + timeInSeconds % 60).slice(-2);
@@ -91,6 +95,8 @@
         }
 
         var getGame = function (gameID) {
+            $("#btn-refresh").attr("disabled", true);
+            $("#btn-refresh").innerHTML = "Updating";
             clearTimeout(timeoutID);
 
             var game = null;
@@ -116,6 +122,8 @@
                 setPenalties($("#host-penalties-list"), gameInfo.HostPenalties);
                 setPenalties($("#visitor-penalties-list"), gameInfo.VisitorPenalties);
 
+                $("#btn-refresh").innerHTML = "Refresh";
+                $("#btn-refresh").attr("disabled", false);
                 timeoutID = setTimeout(refresh, 120000);
             });
         }
@@ -128,7 +136,7 @@
 
                 var btnGame = $("<button>");
                 btnGame.innerHTML = data.Host + " vs " + data.Visitor;
-                btnGame.onclick(function () {
+                btnGame.click(function () {
                     getGame(data.GameID);
                 });
                 $("#games-section").append(btnGame);
@@ -146,6 +154,7 @@
         <td style="width: 60%; vertical-align: top;">
             <div id="game-section" class="hidden">
                 <h3 id="game-section-title">Test</h3>
+                <button id="btn-refresh">Refresh</button>
 
                 <p>Period <span id="period">0</span> - <span id="period-chronometer">0:00</span></p>
                 <table style="width: 100%">
