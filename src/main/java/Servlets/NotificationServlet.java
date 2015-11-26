@@ -26,6 +26,8 @@ public class NotificationServlet extends HttpServlet {
         }
     }
 
+    static int cpt = 0;
+
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         //content type must be set to text/event-stream
         response.setContentType("text/event-stream");
@@ -35,10 +37,14 @@ public class NotificationServlet extends HttpServlet {
 
         PrintWriter writer = response.getWriter();
 
+//        JsonObject obj = new JsonObject();
+//        obj.addProperty("test", ++cpt);
+//        AddMessage(obj);
+
         synchronized (messages) {
             if(!messages.isEmpty()) {
                 for (JsonObject message : messages) {
-                    writer.write("data: " + message.getAsString() + "\n\n");
+                    writer.write("data: " + message.toString() + "\n\n");
                 }
 
                 messages.clear();
