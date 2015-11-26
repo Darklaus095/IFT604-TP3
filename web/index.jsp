@@ -54,7 +54,13 @@
             var amount = $("#bet-amount").value();
 
             if(amount != "" && (betOnHost || betOnVisitor)) {
-                post("bet", {betOnHost: betOnHost, amount: amount}, function(data) {
+                var betOn;
+                if(betOnHost)
+                    betOn = $("#host-name").innerHTML;
+                if(betOnVisitor)
+                    betOn = $("#visitor-name").innerHTML;
+
+                post("bet", {betOn: betOn, amount: amount, gameID: currentGameID}, function(data) {
                     alert(data);
                 });
             }
