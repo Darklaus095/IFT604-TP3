@@ -13,6 +13,8 @@
     <script>
         var eventSource = new EventSource("NotificationServlet");
 
+        var games = new Array();
+
         eventSource.onmessage = function (event) {
             var notificationSection = $("#notification-section");
             var obj = jQuery.parseJSON(event.data);
@@ -52,33 +54,68 @@
 
         $("#btn-bet").onclick(bet);
 
+        var formatTime = function(timeInSeconds) {
+            return timeInSeconds / 60 + ":" + ("0" + timeInSeconds % 60).slice(-2);
+        }
+
+        var setGoals = function(list, goals) {
+            list.innerHTML = "";
+            $.each(goals, function(i, goal) {
+                var line = $("<p>");
+                line.innerHTML = goal.GoalHolder + " - " + goal.amount;
+                list.append(line);
+            });
+        }
+
+        var setPenalties = function(list, penalties) {
+            list.innerHTML = "";
+            $.each(penalties, function(i, penalty) {
+                var line = $("<p>");
+                line.innerHTML = penalty.PenaltyHolder + " - " + formatTime(penalty.TimeLeft);
+                list.append(line);
+            });
+        }
+
         var getGame = function (gameID) {
             clearTimeout(timeoutID);
 
-            post("getGame", {gameID: gameID}, function (data) {
+            var game = null;
+            $.each(games, function (i, data) {
+                if(data.GameID == gameID)
+                    game = data;
+            });
+
+            post("getGame", {GameID: gameID}, function (data) {
                 gameSection.removeClass("hidden");
 
-                var obj = jQuery.parseJSON(data);
-                $("#game-section-title").innerHTML = data.title;
-                $("#host-name").innerHTML = data.host;
-                $("#host-goals").innerHTML = data.hostGoals;
-                $("#host-penalties").innerHTML = data.hostPenalties;
-                $("#visitor-name").innerHTML = data.visitor;
-                $("#visitor-goals").innerHTML = data.visitorGoals;
-                $("#visitor-penalties").innerHTML = data.visitorPenalties;
+                var gameInfo = jQuery.parseJSON(data);
+                $("#game-section-title").innerHTML = game.Host + " vs " + game.Visitor;
+                $("#host-name").innerHTML = game.Host;
+                $("#visitor-name").innerHTML = game.Visitor;
+                $("#period").innerHTML = gameInfo.Period;
+                $("#period-chronometer").innerHTML = formatTime(gameInfo.PeriodChronometer);
+                $("#host-goals").innerHTML = gameInfo.HostGoalsTotal;
+                $("#visitor-goals").innerHTML = gameInfo.VisitorGoalsTotal;
+
+                setGoals($("#host-goals-list"), gameInfo.HostGoals);
+                setGoals($("#visitor-goals-list"), gameInfo.VisitorGoals);
+                setPenalties($("#host-penalties-list"), gameInfo.HostPenalties);
+                setPenalties($("#visitor-penalties-list"), gameInfo.VisitorPenalties);
 
                 timeoutID = setTimeout(refresh, 120000);
             });
         }
 
         post("getGames", {}, function (data) {
-            var obj = jQuery.parseJSON(data);
+            games = jQuery.parseJSON(data);
 
-            $.each(data, function (i, obj) {
+            $.each(games, function (i, data) {
+                games.push(data);
+
                 var btnGame = $("<button>");
-                btnGame.innerHTML = obj.toString();
+                btnGame.innerHTML = data.Host + " vs " + data.Visitor;
                 btnGame.onclick(function () {
-                    getGame(obj.id);
+                    getGame(data.GameID);
                 });
                 $("#games-section").append(btnGame);
             });
@@ -96,18 +133,17 @@
             <div id="game-section" class="hidden">
                 <h3 id="game-section-title">Test</h3>
 
+                <p>Period <span id="period">0</span> - <span id="period-chronometer">0:00</span></p>
                 <table style="width: 100%">
                     <tr>
                         <td>
                             <h4 id="host-name">Test</h4>
                             <p>Goals: <span id="host-goals">0</span></p>
-                            <p>Penalties: <span id="host-penalties">0</span></p>
                             <h5>Goals</h5>
                         </td>
                         <td>
                             <h4 id="visitor-name">Test</h4>
                             <p>Goals: <span id="visitor-goals">0</span></p>
-                            <p>Penalties: <span id="visitor-penalties">0</span></p>
                             <h5>Goals</h5>
                         </td>
                     </tr>
