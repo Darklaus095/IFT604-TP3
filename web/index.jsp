@@ -10,7 +10,14 @@
 <head>
     <title>HockeyLive</title>
     <script src="scripts/jquery-2.1.4.min.js"></script>
+    <script src="scripts/js.cookie.js"></script>
     <script>
+        var cptBet = Cookies.get('bet');
+        if(cptBet == undefined) {
+            cptBet = 0;
+            Cookies.set('bet', cptBet, { expires: 7, path: '' });
+        }
+
         var eventSource = new EventSource("NotificationServlet");
 
         var games = new Array();
@@ -18,7 +25,7 @@
         eventSource.onmessage = function (event) {
             var notificationSection = $("#notification-section");
             //var obj = jQuery.parseJSON(event.data);
-
+            //TODO
             notificationSection.prepend("<p>" + event.data + "</p>");
             if(notificationSection.children().length > 10)
                 notificationSection.children().last().remove();
@@ -27,6 +34,7 @@
         };
 
         eventSource.addEventListener('up_vote', function (event) {
+            //TODO
             $("#notification-section").prepend("<p>" + event.data + "</p>");
         }, false);
 
@@ -64,6 +72,8 @@
                     betOn = $("#visitor-name").innerHTML;
 
                 post("bet", {betOn: betOn, amount: amount, gameID: currentGameID}, function(data) {
+                    cptBet = cptBet + 1;
+                    Cookies.set('bet', cptBet, { expires: 7, path: '' });
                     alert(data);
                 });
             }
@@ -141,6 +151,16 @@
                 });
                 $("#games-section").append(btnGame);
             });
+
+            if(cptBet > 0) {
+                get("betResults", {}, function(data) {
+                    $.each(data, function(i, obj) {
+                        cptBet = cptBet - 1;
+                        Cookies.set('bet', cptBet, { expires: 7, path: '' });
+                        //TODO
+                    })
+                });
+            }
         });
     </script>
 </head>
