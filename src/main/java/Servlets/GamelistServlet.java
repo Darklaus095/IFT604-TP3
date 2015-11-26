@@ -1,7 +1,6 @@
 package Servlets;
 
 import Common.Models.Game;
-import Server.Server;
 import Services.ServerService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -26,16 +25,13 @@ public class GamelistServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         logger.info("Getting games from server");
+
         List<Game> games = ServerService.getInstance().getGames();
 
-        GsonBuilder builder = new GsonBuilder();
-        Gson gson = builder.setPrettyPrinting().create();
-
         response.setContentType("application/json");
-        PrintWriter out = response.getWriter();
-        out.println(gson.toJson(games));
-        out.flush();
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(new Gson().toJson(games));
 
-        logger.info("Flushed game list");
+        logger.info("Sending back game list");
     }
 }

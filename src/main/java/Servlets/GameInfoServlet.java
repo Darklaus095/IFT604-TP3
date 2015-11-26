@@ -1,5 +1,12 @@
 package Servlets;
 
+import Common.Models.GameInfo;
+import Services.ServerService;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -13,16 +20,17 @@ import java.io.PrintWriter;
  */
 @WebServlet(name = "GameInfoServlet", urlPatterns = "/servlets/gameinfo")
 public class GameInfoServlet extends HttpServlet {
+    private static final Logger logger = LoggerFactory.getLogger(SampleServlet.class);
+
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setContentType("text/html");
-        PrintWriter out = response.getWriter();
-        //int id = Integer.getInteger(request.getParameter("GameId"));
+        logger.info("Getting gameInfo from server");
 
-        /*
-        GameInfo info = service.getGameInfo(id);
+        GameInfo info = ServerService.getInstance().getGameInfo(Integer.getInteger(request.getParameter("GameID")));
 
-         */
-        out.write("<h1>This is a test<h1>");
-        out.flush();
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(new Gson().toJson(info));
+
+        logger.info("Sending back game info");
     }
 }
