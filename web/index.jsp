@@ -122,7 +122,7 @@
             get("servlets/gameinfo", {GameID: gameID}, function (data) {
                 gameSection.removeClass("hidden");
 
-                var gameInfo = jQuery.parseJSON(data);
+                var gameInfo = data;//jQuery.parseJSON(data);
                 $("#game-section-title").text(game.Host + " vs " + game.Visitor);
                 $("#host-name").text(game.Host);
                 $("#visitor-name").text(game.Visitor);
@@ -151,6 +151,7 @@
                 var btnGame = $("<button>");
                 btnGame.text(game.Host + " vs " + game.Visitor);
                 btnGame.click(function () {
+                    currentGameID = game.gameID;
                     getGame(game.GameID);
                 });
                 $("#games-section").append(btnGame);
@@ -225,7 +226,7 @@
                             <input id="bet-on-host" name="bet-on" type="radio" value="host"> Host
                             <input id="bet-on-visitor" name="bet-on" type="radio" value="visitor"> Visitor
                             <br>
-                            Amount: <input id="betAmount" type="number">
+                            Amount: <input id="betAmount" type="number" min="0">
                             <button id="btn-bet">Bet</button>
                         </td>
                     </tr>
