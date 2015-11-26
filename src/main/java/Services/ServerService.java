@@ -1,6 +1,8 @@
 package Services;
 
+import Common.Models.Bet;
 import Common.Models.Game;
+import Common.Models.GameInfo;
 import Server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,15 +45,16 @@ public class ServerService {
         return server.GetGames();
     }
 
+    public GameInfo getGameInfo(int gameId){
+        return server.GetGameInfo(gameId);
+    }
+
+    public void putBet(Bet bet){
+        //TODO: Remove client message parameter
+        server.PlaceBet(bet,null);
+    }
+
 //     TODO:
-//     case GetMatches:
-//     replyData = server.GetGames();
-//     server.SendReply(ServerMessageType.ReturnGames, clientMessage, replyData);
-//     break;
-//     case GetMatchInfo:
-//     replyData = server.GetGameInfo(clientMessage.getData());
-//     server.SendReply(ServerMessageType.ReturnGameInfo, clientMessage, replyData);
-//     break;
 //     case PlaceBet:
 //     server.PlaceBet(clientMessage.getData(), clientMessage);
 //     break;
