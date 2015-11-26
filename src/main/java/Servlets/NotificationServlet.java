@@ -27,24 +27,24 @@ public class NotificationServlet extends HttpServlet {
     }
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        //content type must be set to text/event-stream
+        response.setContentType("text/event-stream");
+
+        //encoding must be set to UTF-8
+        response.setCharacterEncoding("UTF-8");
+
+        PrintWriter writer = response.getWriter();
+
         synchronized (messages) {
             if(!messages.isEmpty()) {
-                //content type must be set to text/event-stream
-                response.setContentType("text/event-stream");
-
-                //encoding must be set to UTF-8
-                response.setCharacterEncoding("UTF-8");
-
-                PrintWriter writer = response.getWriter();
-
                 for (JsonObject message : messages) {
                     writer.write("data: " + message.getAsString() + "\n\n");
                 }
 
-                writer.close();
-
                 messages.clear();
             }
         }
+
+        writer.close();
     }
 }
