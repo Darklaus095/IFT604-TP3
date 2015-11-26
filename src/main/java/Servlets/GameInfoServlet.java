@@ -25,7 +25,7 @@ public class GameInfoServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         logger.info("Getting gameInfo from server");
 
-        GameInfo info = ServerService.getInstance().getGameInfo(Integer.getInteger(request.getParameter("GameID")));
+        GameInfo info = ServerService.getInstance().getGameInfo(Integer.parseInt(request.getParameter("GameID")));
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
