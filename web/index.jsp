@@ -33,6 +33,14 @@
             $.post(url, data).done(callback);
         }
 
+        var get = function (url, data, callback) {
+            $.ajax({
+                method: "GET",
+                url: url,
+                data: data
+            }).done(callback);
+        }
+
         var timeoutID = null;
         var currentGameID = null;
 
@@ -85,7 +93,7 @@
                     game = data;
             });
 
-            post("getGame", {GameID: gameID}, function (data) {
+            get("getGame", {GameID: gameID}, function (data) {
                 gameSection.removeClass("hidden");
 
                 var gameInfo = jQuery.parseJSON(data);
@@ -106,7 +114,7 @@
             });
         }
 
-        post("getGames", {}, function (data) {
+        get("getGames", {}, function (data) {
             games = jQuery.parseJSON(data);
 
             $.each(games, function (i, data) {
