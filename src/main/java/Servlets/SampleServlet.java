@@ -29,7 +29,7 @@ public class SampleServlet extends HttpServlet {
         List<Game> games = ServerService.getInstance().getGames();
 
         GsonBuilder builder = new GsonBuilder();
-        Gson gson = builder.create();
+        Gson gson = builder.setPrettyPrinting().create();
 
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
