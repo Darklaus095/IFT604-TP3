@@ -151,7 +151,7 @@
                 var btnGame = $("<button>");
                 btnGame.text(game.Host + " vs " + game.Visitor);
                 btnGame.click(function () {
-                    currentGameID = game.gameID;
+                    currentGameID = game.GameID;
                     getGame(game.GameID);
                 });
                 $("#games-section").append(btnGame);
