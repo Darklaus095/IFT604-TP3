@@ -19,7 +19,7 @@ import java.io.IOException;
  */
 @WebServlet(name = "PlaceBetServlet", urlPatterns = "/servlets/placebet")
 public class PlaceBetServlet extends HttpServlet{
-    private static final Logger logger = LoggerFactory.getLogger(SampleServlet.class);
+    private static final Logger logger = LoggerFactory.getLogger(PlaceBetServlet.class);
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         logger.info("Placing bet in server");

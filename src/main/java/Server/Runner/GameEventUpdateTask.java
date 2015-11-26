@@ -6,6 +6,7 @@ import Common.Models.Goal;
 import Common.Models.Penalty;
 import Server.Factory.GameFactory;
 import Server.Server;
+import Servlets.NotificationServlet;
 
 /**
  * Micha�l Beaulieu         13048132
@@ -50,6 +51,7 @@ public class GameEventUpdateTask implements Runnable {
         if (g == null) return null;
 
         //TODO: Created a goal for a team => Prepare a notification for Android client
+        //NotificationServlet.AddMessage();
         return g;
     }
 

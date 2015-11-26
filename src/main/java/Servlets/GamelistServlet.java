@@ -21,7 +21,7 @@ import java.util.List;
  */
 @WebServlet(name = "GamelistServlet", urlPatterns = "/servlets/gamelist")
 public class GamelistServlet extends HttpServlet {
-    private static final Logger logger = LoggerFactory.getLogger(SampleServlet.class);
+    private static final Logger logger = LoggerFactory.getLogger(GamelistServlet.class);
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         logger.info("Getting games from server");

@@ -20,7 +20,7 @@ import java.io.PrintWriter;
  */
 @WebServlet(name = "GameInfoServlet", urlPatterns = "/servlets/gameinfo")
 public class GameInfoServlet extends HttpServlet {
-    private static final Logger logger = LoggerFactory.getLogger(SampleServlet.class);
+    private static final Logger logger = LoggerFactory.getLogger(GameInfoServlet.class);
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         logger.info("Getting gameInfo from server");
