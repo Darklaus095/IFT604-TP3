@@ -166,11 +166,11 @@
                     </tr>
                     <tr>
                         <td id="host-penalties-list" style="border: 1px black solid; width: 50%; vertical-align: top;">
-                            <p>Test, 2 min</p>
+                            <p>Test, 2:00</p>
                         </td>
                         <td id="visitor-penalties-list" style="border: 1px black solid; width: 50%; vertical-align: top;">
-                            <p>Test, 2 min</p>
-                            <p>Test, 2 min</p>
+                            <p>Test, 2:00</p>
+                            <p>Test, 2:00</p>
                         </td>
                     </tr>
                     <tr>
