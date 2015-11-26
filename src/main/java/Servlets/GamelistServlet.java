@@ -19,24 +19,19 @@ import java.util.List;
 /**
  * Created by Utilisateur on 2015-11-24.
  */
-@WebServlet(name = "SampleServlet", urlPatterns = "/servlets/sample")
-public class SampleServlet extends HttpServlet {
+@WebServlet(name = "GamelistServlet", urlPatterns = "/servlets/gamelist")
+public class GamelistServlet extends HttpServlet {
     private static final Logger logger = LoggerFactory.getLogger(SampleServlet.class);
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        /*
         logger.info("Getting games from server");
+
         List<Game> games = ServerService.getInstance().getGames();
 
-        GsonBuilder builder = new GsonBuilder();
-        Gson gson = builder.setPrettyPrinting().create();
-
         response.setContentType("application/json");
-        PrintWriter out = response.getWriter();
-        out.println(gson.toJson(games));
-        out.flush();
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(new Gson().toJson(games));
 
-        logger.info("Flushed game list");
-        */
+        logger.info("Sending back game list");
     }
 }
