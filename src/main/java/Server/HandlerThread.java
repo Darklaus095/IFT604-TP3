@@ -32,7 +32,7 @@ public class HandlerThread implements Runnable {
                 server.SendReply(ServerMessageType.ReturnGameInfo, clientMessage, replyData);
                 break;
             case PlaceBet:
-                server.PlaceBet(clientMessage.getData(), clientMessage);
+                //server.PlaceBet(clientMessage.getData(), clientMessage);
                 break;
             case AckNotification:
                 server.AddAck(clientMessage);
