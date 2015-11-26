@@ -9,6 +9,7 @@ import Common.Models.Game;
 import Common.Models.GameInfo;
 import Server.Communication.ServerSocket;
 import Server.Factory.GameFactory;
+import Server.Runner.BetRunner;
 import Server.Runner.Chronometer;
 import Server.Runner.GameEventUpdater;
 
@@ -35,6 +36,7 @@ public class Server implements Runnable {
     private ConcurrentMap<Integer, Condition> gamesCompleted;
     private ConcurrentMap<Integer, GameInfo> runningGameInfos;
     private ConcurrentMap<Integer, List<Bet>> placedBets;
+
     private ConcurrentMap<Integer, ConcurrentMap<InetAddress, ConcurrentMap<Integer, ClientMessage>>> acks;
     private Condition acksCondition;
     private ServerSocket socket;
@@ -42,6 +44,7 @@ public class Server implements Runnable {
     private Thread serverThread;
     private Chronometer chronometer;
     private GameEventUpdater eventUpdater;
+    private List<Thread> betWatchers;
 
     private Lock gameUpdateLock;
 
@@ -52,6 +55,7 @@ public class Server implements Runnable {
         gameUpdateLock = new ReentrantLock();
         acks = new ConcurrentHashMap<>();
         gamesCompleted = new ConcurrentHashMap<>();
+        betWatchers = new ArrayList<>();
         Initialize();
     }
 
@@ -143,7 +147,7 @@ public class Server implements Runnable {
 
     public synchronized GameInfo GetGameInfo(Object gameID) {
         try {
-            Integer g = (Integer)gameID;
+            Integer g = (Integer) gameID;
             return GetGameInfo(g);
         } catch (Exception e) {
             return null;
@@ -161,17 +165,9 @@ public class Server implements Runnable {
         acksCondition.signalAll();
     }
 
-    public void PlaceBet(Bet bet, ClientMessage message) {
+    public boolean PlaceBet(Bet bet) {
         Game game = GetGameByID(bet.getGameID());
         GameInfo info = runningGameInfos.get(game.getGameID());
-
-        InetAddress localhost;
-        try {
-            localhost = InetAddress.getLocalHost();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-            return;
-        }
 
         boolean added = false;
 
@@ -180,76 +176,32 @@ public class Server implements Runnable {
             (placedBets.get(bet.getGameID())).add(bet);
         }
 
-        try {
-            socket.Send(new ServerMessage(ServerMessageType.BetConfirmation,
-                    message.GetIPAddress(),
-                    message.GetPort(),
-                    message.getReceiverIp(),
-                    message.getReceiverPort(),
-                    message.getID(), added));
-        } catch (IOException e) {
-            System.out.println("PlaceBet: Error on socket send");
-            e.printStackTrace();
-            return;
-        }
+        Thread t = new Thread(new BetRunner(this, game.getGameID(), info, bet));
+        betWatchers.add(t);
+        t.start();
 
-        while (info.getPeriod() != 3 && info.getPeriodChronometer() != 0) {
-            gameUpdateLock.lock();
-            try {
-                gamesCompleted.get(game.getGameID()).await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } finally {
-                gameUpdateLock.unlock();
-            }
-        }
-
-        bet.setAmountGained(ComputeAmountGained(bet, game));
-
-        ServerMessage serverMessage = new ServerMessage(ServerMessageType.BetResult,
-                message.GetIPAddress(),
-                message.GetPort(),
-                message.getReceiverIp(),
-                message.getReceiverPort(),
-                message.getID(),
-                bet);
-
-
-
-        while (!(acks.containsKey(game.getGameID())
-                && acks.get(game.getGameID()).containsKey(message.GetIPAddress())
-                && acks.get(game.getGameID()).get(message.GetIPAddress()).containsKey(message.GetPort()))) {
-
-            try {
-                socket.Send(serverMessage);
-            } catch (IOException e) {
-                System.out.println("PlaceBet: Error sending message requiring ack.");
-                e.printStackTrace();
-                return;
-            }
-
-            try {
-                acksCondition.await(5, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        return added;
     }
 
     public void PlaceBet(Object bet, ClientMessage message) {
         try {
             Bet b = (Bet) bet;
-            PlaceBet(b, message);
+            //PlaceBet(b, message);
         } catch (Exception e) {
             SendReply(ServerMessageType.BetConfirmation, message, false);
         }
+    }
+
+    public void holdBet(int gameId) throws InterruptedException {
+        gamesCompleted.get(gameId).await();
     }
 
     public void notifyBets(Game game) {
         gamesCompleted.get(game.getGameID()).signalAll();
     }
 
-    private double ComputeAmountGained(Bet bet, Game game) {
+    public double ComputeAmountGained(Bet bet, int gameId) {
+        Game game = GetGameByID(gameId);
         List<Bet> bets = placedBets.get(game.getGameID());
         GameInfo info = GetGameInfo(game.getGameID());
 
@@ -302,7 +254,7 @@ public class Server implements Runnable {
     public void Initialize() {
         runningGames.clear();
         runningGameInfos.clear();
-        acks.clear();
+        //acks.clear();
         placedBets.clear();
         GameFactory.Initialize();
         InitializeGames();
@@ -317,6 +269,12 @@ public class Server implements Runnable {
     }
 
     public void stop() {
+        for (Thread t : betWatchers) {
+            if (t.isAlive())
+                t.interrupt();
+        }
+
+        betWatchers.clear();
         eventUpdater.Stop();
         chronometer.Stop();
         if (socket != null) socket.CloseSocket();

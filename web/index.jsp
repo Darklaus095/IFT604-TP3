@@ -13,9 +13,9 @@
     <script src="scripts/js.cookie.js"></script>
     <script>
         var cptBet = Cookies.get('bet');
-        if(cptBet == undefined) {
+        if (cptBet == undefined) {
             cptBet = 0;
-            Cookies.set('bet', cptBet, { expires: 7, path: '' });
+            Cookies.set('bet', cptBet, {expires: 7, path: ''});
         }
 
         var eventSource = new EventSource("NotificationServlet");
@@ -27,7 +27,7 @@
             //var obj = jQuery.parseJSON(event.data);
             //TODO
             notificationSection.prepend("<p>" + event.data + "</p>");
-            if(notificationSection.children().length > 10)
+            if (notificationSection.children().length > 10)
                 notificationSection.children().last().remove();
 
             alert(event.data);
@@ -59,21 +59,21 @@
             getGame(currentGameID);
         }
 
-        var bet = function() {
+        var bet = function () {
             var betOnHost = $("#bet-on-host:checked").length > 0;
             var betOnVisitor = $("#bet-on-visitor:checked").length > 0;
             var amount = $("#bet-amount").value();
 
-            if(amount != "" && (betOnHost || betOnVisitor)) {
+            if (amount != "" && (betOnHost || betOnVisitor)) {
                 var betOn;
-                if(betOnHost)
+                if (betOnHost)
                     betOn = $("#host-name").innerHTML;
-                if(betOnVisitor)
+                if (betOnVisitor)
                     betOn = $("#visitor-name").innerHTML;
 
-                post("bet", {betOn: betOn, amount: amount, gameID: currentGameID}, function(data) {
+                post("bet", {betOn: betOn, amount: amount, gameID: currentGameID}, function (data) {
                     cptBet = cptBet + 1;
-                    Cookies.set('bet', cptBet, { expires: 7, path: '' });
+                    Cookies.set('bet', cptBet, {expires: 7, path: ''});
                     alert(data);
                 });
             }
@@ -82,22 +82,22 @@
         $("#btn-bet").click(bet);
         $("#btn-refresh").click(refresh);
 
-        var formatTime = function(timeInSeconds) {
+        var formatTime = function (timeInSeconds) {
             return timeInSeconds / 60 + ":" + ("0" + timeInSeconds % 60).slice(-2);
         }
 
-        var setGoals = function(list, goals) {
+        var setGoals = function (list, goals) {
             list.innerHTML = "";
-            $.each(goals, function(i, goal) {
+            $.each(goals, function (i, goal) {
                 var line = $("<p>");
                 line.innerHTML = goal.GoalHolder + " - " + goal.amount;
                 list.append(line);
             });
         }
 
-        var setPenalties = function(list, penalties) {
+        var setPenalties = function (list, penalties) {
             list.innerHTML = "";
-            $.each(penalties, function(i, penalty) {
+            $.each(penalties, function (i, penalty) {
                 var line = $("<p>");
                 line.innerHTML = penalty.PenaltyHolder + " - " + formatTime(penalty.TimeLeft);
                 list.append(line);
@@ -111,7 +111,7 @@
 
             var game = null;
             $.each(games, function (i, data) {
-                if(data.GameID == gameID)
+                if (data.GameID == gameID)
                     game = data;
             });
 
@@ -152,11 +152,11 @@
                 $("#games-section").append(btnGame);
             });
 
-            if(cptBet > 0) {
-                get("betResults", {}, function(data) {
-                    $.each(data, function(i, obj) {
+            if (cptBet > 0) {
+                get("betResults", {}, function (data) {
+                    $.each(data, function (i, obj) {
                         cptBet = cptBet - 1;
-                        Cookies.set('bet', cptBet, { expires: 7, path: '' });
+                        Cookies.set('bet', cptBet, {expires: 7, path: ''});
                         //TODO
                     })
                 });
@@ -169,6 +169,7 @@
     <tr>
         <td style="width: 20%; vertical-align: top;">
             <h3>Games</h3>
+
             <div id="games-section"/>
         </td>
         <td style="width: 60%; vertical-align: top;">
@@ -181,11 +182,13 @@
                     <tr>
                         <td>
                             <h4 id="host-name">Test</h4>
+
                             <p>Goals: <span id="host-goals">0</span></p>
                             <h5>Goals</h5>
                         </td>
                         <td>
                             <h4 id="visitor-name">Test</h4>
+
                             <p>Goals: <span id="visitor-goals">0</span></p>
                             <h5>Goals</h5>
                         </td>
@@ -193,6 +196,7 @@
                     <tr>
                         <td id="host-goals-list" style="border: 1px black solid; width: 50%; vertical-align: top;">
                             <p>Test, 0</p>
+
                             <p>Test, 0</p>
                         </td>
                         <td id="visitor-goals-list" style="border: 1px black solid; width: 50%; vertical-align: top;">
@@ -211,8 +215,10 @@
                         <td id="host-penalties-list" style="border: 1px black solid; width: 50%; vertical-align: top;">
                             <p>Test, 2:00</p>
                         </td>
-                        <td id="visitor-penalties-list" style="border: 1px black solid; width: 50%; vertical-align: top;">
+                        <td id="visitor-penalties-list"
+                            style="border: 1px black solid; width: 50%; vertical-align: top;">
                             <p>Test, 2:00</p>
+
                             <p>Test, 2:00</p>
                         </td>
                     </tr>
@@ -221,7 +227,7 @@
                             <input id="bet-on-host" name="bet-on" type="radio" value="host"> Host
                             <input id="bet-on-visitor" name="bet-on" type="radio" value="visitor"> Visitor
                             <br>
-                            Amount: <input id="betAmount" type="number">
+                            Amount: <input id="betAmount" min="0" type="number">
                             <button id="btn-bet">Bet</button>
                         </td>
                     </tr>
@@ -230,6 +236,7 @@
         </td>
         <td style="width: 20%; vertical-align: top;">
             <h3>Events</h3>
+
             <div id="notification-section"/>
         </td>
     </tr>
