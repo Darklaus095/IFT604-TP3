@@ -18,7 +18,7 @@
             Cookies.set('bet', cptBet, { expires: 7, path: '' });
         }
 
-        var eventSource = new EventSource("NotificationServlet");
+        var eventSource = new EventSource("servlets/notification");
 
         var games = new Array();
 
@@ -49,7 +49,11 @@
                 method: "GET",
                 url: url,
                 data: data
-            }).done(callback);
+            })
+                    .done(callback)
+                    .fail(function( jqXHR, textStatus, errorThrown ) {
+                        alert(textStatus + ": " + errorThrown);
+                    });
         }
 
         var timeoutID = null;
@@ -67,11 +71,11 @@
             if(amount != "" && (betOnHost || betOnVisitor)) {
                 var betOn;
                 if(betOnHost)
-                    betOn = $("#host-name").innerHTML;
+                    betOn = $("#host-name").text();
                 if(betOnVisitor)
-                    betOn = $("#visitor-name").innerHTML;
+                    betOn = $("#visitor-name").text();
 
-                post("bet", {betOn: betOn, amount: amount, gameID: currentGameID}, function(data) {
+                post("servlets/placebet", {betOn: betOn, amount: amount, gameID: currentGameID}, function(data) {
                     cptBet = cptBet + 1;
                     Cookies.set('bet', cptBet, { expires: 7, path: '' });
                     alert(data);
@@ -87,26 +91,26 @@
         }
 
         var setGoals = function(list, goals) {
-            list.innerHTML = "";
+            list.text("");
             $.each(goals, function(i, goal) {
                 var line = $("<p>");
-                line.innerHTML = goal.GoalHolder + " - " + goal.amount;
+                line.text(goal.GoalHolder + " - " + goal.amount);
                 list.append(line);
             });
         }
 
         var setPenalties = function(list, penalties) {
-            list.innerHTML = "";
+            list.text("");
             $.each(penalties, function(i, penalty) {
                 var line = $("<p>");
-                line.innerHTML = penalty.PenaltyHolder + " - " + formatTime(penalty.TimeLeft);
+                line.text(penalty.PenaltyHolder + " - " + formatTime(penalty.TimeLeft));
                 list.append(line);
             });
         }
 
         var getGame = function (gameID) {
             $("#btn-refresh").attr("disabled", true);
-            $("#btn-refresh").innerHTML = "Updating";
+            $("#btn-refresh").text("Updating");
             clearTimeout(timeoutID);
 
             var game = null;
@@ -115,39 +119,39 @@
                     game = data;
             });
 
-            get("getGame", {GameID: gameID}, function (data) {
+            get("servlets/gameinfo", {GameID: gameID}, function (data) {
                 gameSection.removeClass("hidden");
 
                 var gameInfo = jQuery.parseJSON(data);
-                $("#game-section-title").innerHTML = game.Host + " vs " + game.Visitor;
-                $("#host-name").innerHTML = game.Host;
-                $("#visitor-name").innerHTML = game.Visitor;
-                $("#period").innerHTML = gameInfo.Period;
-                $("#period-chronometer").innerHTML = formatTime(gameInfo.PeriodChronometer);
-                $("#host-goals").innerHTML = gameInfo.HostGoalsTotal;
-                $("#visitor-goals").innerHTML = gameInfo.VisitorGoalsTotal;
+                $("#game-section-title").text(game.Host + " vs " + game.Visitor);
+                $("#host-name").text(game.Host);
+                $("#visitor-name").text(game.Visitor);
+                $("#period").text(gameInfo.Period);
+                $("#period-chronometer").text(formatTime(gameInfo.PeriodChronometer));
+                $("#host-goals").text(gameInfo.HostGoalsTotal);
+                $("#visitor-goals").text(gameInfo.VisitorGoalsTotal);
 
                 setGoals($("#host-goals-list"), gameInfo.HostGoals);
                 setGoals($("#visitor-goals-list"), gameInfo.VisitorGoals);
                 setPenalties($("#host-penalties-list"), gameInfo.HostPenalties);
                 setPenalties($("#visitor-penalties-list"), gameInfo.VisitorPenalties);
 
-                $("#btn-refresh").innerHTML = "Refresh";
+                $("#btn-refresh").text("Refresh");
                 $("#btn-refresh").attr("disabled", false);
                 timeoutID = setTimeout(refresh, 120000);
             });
         }
 
-        get("getGames", {}, function (data) {
-            games = jQuery.parseJSON(data);
+        get("servlets/gamelist", {}, function (data) {
+            games = data;
 
-            $.each(games, function (i, data) {
-                games.push(data);
+            $.each(games, function (i, game) {
+                games.push(game);
 
                 var btnGame = $("<button>");
-                btnGame.innerHTML = data.Host + " vs " + data.Visitor;
+                btnGame.text(game.Host + " vs " + game.Visitor);
                 btnGame.click(function () {
-                    getGame(data.GameID);
+                    getGame(game.GameID);
                 });
                 $("#games-section").append(btnGame);
             });
