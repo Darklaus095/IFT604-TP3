@@ -1,6 +1,7 @@
 package Servlets;
 
 import Common.Models.Game;
+import Server.Server;
 import Services.ServerService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -19,12 +20,11 @@ import java.util.List;
 /**
  * Created by Utilisateur on 2015-11-24.
  */
-@WebServlet(name = "SampleServlet", urlPatterns = "/servlets/sample")
-public class SampleServlet extends HttpServlet {
+@WebServlet(name = "GamelistServlet", urlPatterns = "/servlets/gamelist")
+public class GamelistServlet extends HttpServlet {
     private static final Logger logger = LoggerFactory.getLogger(SampleServlet.class);
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        /*
         logger.info("Getting games from server");
         List<Game> games = ServerService.getInstance().getGames();
 
@@ -37,6 +37,5 @@ public class SampleServlet extends HttpServlet {
         out.flush();
 
         logger.info("Flushed game list");
-        */
     }
 }
