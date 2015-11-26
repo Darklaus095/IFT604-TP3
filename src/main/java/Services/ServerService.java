@@ -49,18 +49,8 @@ public class ServerService {
         return server.GetGameInfo(gameId);
     }
 
-    public void putBet(Bet bet){
-        //TODO: Remove client message parameter
-        server.PlaceBet(bet,null);
+    public boolean putBet(Bet bet){
+        return server.PlaceBet(bet);
     }
-
-//     TODO:
-//     case PlaceBet:
-//     server.PlaceBet(clientMessage.getData(), clientMessage);
-//     break;
-//     case AckNotification:
-//     server.AddAck(clientMessage);
-
-
 
 }
