@@ -26,28 +26,23 @@ public class NotificationServlet extends HttpServlet {
         }
     }
 
-    static int cpt = 0;
-
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         //content type must be set to text/event-stream
         response.setContentType("text/event-stream");
-
         //encoding must be set to UTF-8
         response.setCharacterEncoding("UTF-8");
+        response.setHeader("Cache-Control", "no-cache");
 
         PrintWriter writer = response.getWriter();
 
-//        JsonObject obj = new JsonObject();
-//        obj.addProperty("test", ++cpt);
-//        AddMessage(obj);
+        String lastEventID = request.getHeader("Last-Event-ID");
+        int last = lastEventID != null ? Integer.parseInt(lastEventID) : -1;
 
         synchronized (messages) {
-            if(!messages.isEmpty()) {
-                for (JsonObject message : messages) {
-                    writer.write("data: " + message.toString() + "\n\n");
-                }
-
-                messages.clear();
+            for (int i = last+1; i < messages.size(); ++i) {
+                writer.write("id: " + i + "\n");
+                writer.write("data: " + messages.get(i).toString() + "\n\n");
+                writer.flush();
             }
         }
 
