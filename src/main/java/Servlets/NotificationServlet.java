@@ -69,25 +69,35 @@ public class NotificationServlet extends HttpServlet {
         PrintWriter writer = response.getWriter();
 
         String lastEventID = request.getHeader("Last-Event-ID");
-        int last = lastEventID != null ? Integer.parseInt(lastEventID) : -1;
 
-        List<Integer> betIDs = getBetIDs(request);
+        if(lastEventID == null) {
+            synchronized (events) {
+                writer.write("id: " + (events.size() - 1) + "\n");
+                writer.write("event: connection\n");
+                writer.write("data: 1\n\n");
+                writer.flush();
+                logger.info("Sending connection event");
+            }
+        } else {
+            int last = Integer.parseInt(lastEventID);
+            List<Integer> betIDs = getBetIDs(request);
 
-        synchronized (events) {
-            for (int i = last+1; i < events.size(); ++i) {
-                HockeyEvent event = events.get(i);
+            synchronized (events) {
+                for (int i = last + 1; i < events.size(); ++i) {
+                    HockeyEvent event = events.get(i);
 
-                if(event.getBetId() < 0) {
-                    writer.write("id: " + i + "\n");
-                    writer.write("data: " + JsonSerializer.serialize(events.get(i)) + "\n\n");
-                    writer.flush();
-                    logger.info("Sending event" + JsonSerializer.serialize(events.get(i)));
-                } else if(betIDs.contains(event.getBetId())) {
-                    writer.write("id: " + i + "\n");
-                    writer.write("event: bet-result\n");
-                    writer.write("data: " + JsonSerializer.serialize(events.get(i)) + "\n\n");
-                    writer.flush();
-                    logger.info("Sending event" + JsonSerializer.serialize(events.get(i)));
+                    if (event.getBetId() < 0) {
+                        writer.write("id: " + i + "\n");
+                        writer.write("data: " + JsonSerializer.serialize(events.get(i)) + "\n\n");
+                        writer.flush();
+                        logger.info("Sending event" + JsonSerializer.serialize(events.get(i)));
+                    } else if (betIDs.contains(event.getBetId())) {
+                        writer.write("id: " + i + "\n");
+                        writer.write("event: bet-result\n");
+                        writer.write("data: " + JsonSerializer.serialize(events.get(i)) + "\n\n");
+                        writer.flush();
+                        logger.info("Sending bet-result event" + JsonSerializer.serialize(events.get(i)));
+                    }
                 }
             }
         }

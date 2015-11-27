@@ -1,6 +1,7 @@
 package Servlets;
 
 import Common.Models.Bet;
+import Common.Models.Game;
 import Common.helpers.JsonSerializer;
 import Services.ServerService;
 import org.slf4j.Logger;
@@ -23,7 +24,18 @@ public class BetResultServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         logger.info("Getting bet result from server");
 
-        Bet bet = ServerService.getInstance().getBetResult(Integer.parseInt(request.getParameter("betID")));
+        Bet bet = ServerService.getInstance().getBetResult(Integer.parseInt(request.getParameter("BetID")));
+
+        if(bet != null) {
+            Game game = null;
+            for (Game g : ServerService.getInstance().getGames()) {
+                if (bet.getGameID() == g.getGameID())
+                    game = g;
+            }
+
+            if (!game.isCompleted())
+                bet = null;
+        }
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
