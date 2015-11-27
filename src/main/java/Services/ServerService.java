@@ -49,8 +49,11 @@ public class ServerService {
         return server.GetGameInfo(gameId);
     }
 
-    public boolean putBet(Bet bet){
+    public int putBet(Bet bet){
         return server.PlaceBet(bet);
     }
 
+    public Bet getBetResult(int gameID) {
+        return server.getBetResult(gameID);
+    }
 }

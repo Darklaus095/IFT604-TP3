@@ -2,7 +2,10 @@ package Server.Runner;
 
 import Common.Models.Bet;
 import Common.Models.GameInfo;
+import Common.Models.HockeyEvent;
+import Common.helpers.JsonSerializer;
 import Server.Server;
+import Servlets.NotificationServlet;
 
 /**
  * Created by Michaël on 11/25/2015.
@@ -37,6 +40,8 @@ public class BetRunner implements Runnable {
         }
 
         bet.setAmountGained(server.ComputeAmountGained(bet, gameId));
+
+        NotificationServlet.addEvent(new HockeyEvent(gameId,bet.toString(),bet.getID()));
 
 //        //TODO Send notification to client
 //        ServerMessage serverMessage = new ServerMessage(ServerMessageType.BetResult,

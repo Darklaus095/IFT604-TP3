@@ -35,7 +35,7 @@ public class Server implements Runnable {
     private List<Game> runningGames;
     private ConcurrentMap<Integer, Condition> gamesCompleted;
     private ConcurrentMap<Integer, GameInfo> runningGameInfos;
-    private ConcurrentMap<Integer, List<Bet>> placedBets;
+    private ConcurrentMap<Integer, Bet> placedBets;
 
     private ConcurrentMap<Integer, ConcurrentMap<InetAddress, ConcurrentMap<Integer, ClientMessage>>> acks;
     private Condition acksCondition;
@@ -108,7 +108,6 @@ public class Server implements Runnable {
         if (runningGames.size() < 10) {
             runningGames.add(game);
             runningGameInfos.put(game.getGameID(), info);
-            placedBets.put(game.getGameID(), new ArrayList<>());
             acks.put(game.getGameID(), new ConcurrentHashMap<>());
             gamesCompleted.put(game.getGameID(), gameUpdateLock.newCondition());
         }
@@ -137,10 +136,6 @@ public class Server implements Runnable {
         return null;
     }
 
-    public synchronized List<Bet> GetGameBets(Game game) {
-        return placedBets.get(game.getGameID());
-    }
-
     public synchronized GameInfo GetGameInfo(Integer gameID) {
         return runningGameInfos.get(gameID);
     }
@@ -165,7 +160,7 @@ public class Server implements Runnable {
         acksCondition.signalAll();
     }
 
-    public boolean PlaceBet(Bet bet) {
+    public int PlaceBet(Bet bet) {
         Game game = GetGameByID(bet.getGameID());
         GameInfo info = runningGameInfos.get(game.getGameID());
 
@@ -173,14 +168,15 @@ public class Server implements Runnable {
 
         if (info.getPeriod() <= 2) {
             added = true;
-            (placedBets.get(bet.getGameID())).add(bet);
+            placedBets.put(bet.getID(), bet);
         }
+
+        if (!added) return -1;
 
         Thread t = new Thread(new BetRunner(this, game.getGameID(), info, bet));
         betWatchers.add(t);
         t.start();
-
-        return added;
+        return bet.getID();
     }
 
     public void PlaceBet(Object bet, ClientMessage message) {
@@ -202,7 +198,7 @@ public class Server implements Runnable {
 
     public double ComputeAmountGained(Bet bet, int gameId) {
         Game game = GetGameByID(gameId);
-        List<Bet> bets = placedBets.get(game.getGameID());
+        List<Bet> bets = getBetsForGame(gameId);
         GameInfo info = GetGameInfo(game.getGameID());
 
         double totalAmountHost = 0;
@@ -239,6 +235,10 @@ public class Server implements Runnable {
         return amountGained;
     }
 
+    private List<Bet> getBetsForGame(int gameId) {
+        return placedBets.values().stream().filter(b -> b.getGameID() == gameId).collect(Collectors.toList());
+    }
+
     @Override
     public void run() {
         execute();
@@ -254,7 +254,6 @@ public class Server implements Runnable {
     public void Initialize() {
         runningGames.clear();
         runningGameInfos.clear();
-        //acks.clear();
         placedBets.clear();
         GameFactory.Initialize();
         InitializeGames();
@@ -291,5 +290,11 @@ public class Server implements Runnable {
 
     public void SetPeriodLength(int minutes) {
         GameFactory.UpdatePeriodLength(minutes);
+    }
+
+    public Bet getBetResult(int gameID) {
+        if (placedBets.containsKey(gameID))
+            return placedBets.get(gameID);
+        return null;
     }
 }

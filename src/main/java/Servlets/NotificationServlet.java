@@ -1,5 +1,7 @@
 package Servlets;
 
+import Common.Models.HockeyEvent;
+import Common.helpers.JsonSerializer;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -26,9 +28,9 @@ public class NotificationServlet extends HttpServlet {
     private static final Logger logger = LoggerFactory.getLogger(NotificationServlet.class);
 
 
-    private static List<String> events = new ArrayList<>();
+    private static List<HockeyEvent> events = new ArrayList<>();
 
-    public static void addEvent(String event) {
+    public static void addEvent(HockeyEvent event) {
         synchronized (events) {
             events.add(event);
             logger.info("Received event to be sent");
@@ -74,9 +76,9 @@ public class NotificationServlet extends HttpServlet {
         synchronized (events) {
             for (int i = last+1; i < events.size(); ++i) {
                 writer.write("id: " + i + "\n");
-                writer.write("data: " + events.get(i) + "\n\n");
+                writer.write("data: " + JsonSerializer.serialize(events.get(i)) + "\n\n");
                 writer.flush();
-                logger.info("Sending event" + events.get(i));
+                logger.info("Sending event" + JsonSerializer.serialize(events.get(i)));
             }
         }
 

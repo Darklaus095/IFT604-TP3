@@ -18,7 +18,7 @@ import java.io.IOException;
  * Created by Utilisateur on 2015-11-25.
  */
 @WebServlet(name = "PlaceBetServlet", urlPatterns = "/servlets/placebet")
-public class PlaceBetServlet extends HttpServlet{
+public class PlaceBetServlet extends HttpServlet {
     private static final Logger logger = LoggerFactory.getLogger(PlaceBetServlet.class);
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -28,6 +28,10 @@ public class PlaceBetServlet extends HttpServlet{
         String team = request.getParameter("teamName");
         double amount = Double.parseDouble(request.getParameter("amount"));
 
-        ServerService.getInstance().putBet(new Bet(amount, team, id));
+        int betId = ServerService.getInstance().putBet(new Bet(amount, team, id));
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write("{'ID': '" + betId + "'}");
     }
 }
