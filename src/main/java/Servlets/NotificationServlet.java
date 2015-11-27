@@ -1,6 +1,8 @@
 package Servlets;
 
 import com.google.gson.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -17,12 +19,15 @@ import java.util.List;
  */
 @WebServlet(name = "NotificationServlet", urlPatterns = "/servlets/notification")
 public class NotificationServlet extends HttpServlet {
+    private static final Logger logger = LoggerFactory.getLogger(NotificationServlet.class);
+
 
     private static List<String> events = new ArrayList<>();
 
     public static void addEvent(String event) {
         synchronized (events) {
             events.add(event);
+            logger.info("Received event to be sent");
         }
     }
 
@@ -40,8 +45,10 @@ public class NotificationServlet extends HttpServlet {
 
         synchronized (events) {
             for (int i = last+1; i < events.size(); ++i) {
-                writer.write(events.get(i) + "\n");
+                writer.write("id: " + i + "\n");
+                writer.write("data: " + events.get(i) + "\n\n");
                 writer.flush();
+                logger.info("Sending event" + events.get(i));
             }
         }
 

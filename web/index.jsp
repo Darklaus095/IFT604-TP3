@@ -27,13 +27,13 @@
             if (notificationSection.children().length > 10)
                 notificationSection.children().last().remove();
 
-            TimedMessage.createMessage("event.data");
+            TimedMessage.createMessage(event.data);
         };
 
         eventSource.addEventListener('up_vote', function (event) {
             //TODO
             $("#notification-section").prepend("<p>" + event.data + "</p>");
-            TimedMessage.createMessage("event.data");
+            TimedMessage.createMessage(event.data);
         }, false);
 
         $(document).ready(function(){
