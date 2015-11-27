@@ -22,18 +22,25 @@
         eventSource.onmessage = function (event) {
             var notificationSection = $("#notification-section");
             //var obj = jQuery.parseJSON(event.data);
-            //TODO
-            notificationSection.prepend("<p>" + event.data + "</p>");
-            if (notificationSection.children().length > 10)
-                notificationSection.children().last().remove();
 
-            TimedMessage.createMessage(event.data);
+            var hockeyEvent = jQuery.parseJSON(event.data);
+            //TODO
+            if (hockeyEvent.gameId == currentGameID) {
+                notificationSection.prepend("<p>" + hockeyEvent.description + "</p>");
+                if (notificationSection.children().length > 10)
+                    notificationSection.children().last().remove();
+
+                TimedMessage.createMessage(hockeyEvent.description);
+            }
         };
 
         eventSource.addEventListener('up_vote', function (event) {
             //TODO
-            $("#notification-section").prepend("<p>" + event.data + "</p>");
-            TimedMessage.createMessage(event.data);
+            var hockeyEvent = jQuery.parseJSON(event.data);
+            if (hockeyEvent.gameId == currentGameID) {
+                $("#notification-section").prepend("<p>" + hockeyEvent.description + "</p>");
+                TimedMessage.createMessage(hockeyEvent.description);
+            }
         }, false);
 
         function post(url, data, callback) {
@@ -130,7 +137,7 @@
                 setPenalties($("#visitor-penalties-list"), gameInfo.VisitorPenalties);
 
                 timeoutID = setTimeout(refresh, 120000);
-                setTimeout(function() {
+                setTimeout(function () {
                     $("#btn-refresh").text("Refresh");
                     $("#btn-refresh").attr("disabled", false);
                 }, 2000);
@@ -165,7 +172,7 @@
             });
         }
 
-        $( document ).ready(function() {
+        $(document).ready(function () {
             getGames();
 
             $("#btn-bet").click(bet);
