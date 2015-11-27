@@ -32,6 +32,6 @@ public class PlaceBetServlet extends HttpServlet {
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().write("{'ID': '" + betId + "'}");
+        response.getWriter().write("{\"ID\": " + betId + "}");
     }
 }
