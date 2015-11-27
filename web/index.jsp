@@ -21,36 +21,26 @@
 
         eventSource.onmessage = function (event) {
             var notificationSection = $("#notification-section");
-
+            //var obj = jQuery.parseJSON(event.data);
             //TODO
-            var hockeyEvent = jQuery.parseJSON(event.data);
+            notificationSection.prepend("<p>" + event.data + "</p>");
+            if (notificationSection.children().length > 10)
+                notificationSection.children().last().remove();
 
-            if (currentGameID == hockeyEvent.gameId) {
-                notificationSection.prepend("<p>" + hockeyEvent.description + "</p>");
-                if (notificationSection.children().length > 10)
-                    notificationSection.children().last().remove();
-
-                TimedMessage.createMessage(hockeyEvent.description);
-            }
+            TimedMessage.createMessage(event.data);
         };
 
         eventSource.addEventListener('up_vote', function (event) {
             //TODO
-            var hockeyEvent = jQuery.parseJSON(event.data);
-
-            if (currentGameID == hockeyEvent.gameId) {
-                $("#notification-section").prepend("<p>" + hockeyEvent.description + "</p>");
-                TimedMessage.createMessage(hockeyEvent.description);
-            }
+            $("#notification-section").prepend("<p>" + event.data + "</p>");
+            TimedMessage.createMessage(event.data);
         }, false);
 
-        var gameSection = $("#game-section");
-
-        var post = function (url, data, callback) {
+        function post(url, data, callback) {
             $.post(url, data).done(callback);
         }
 
-        var get = function (url, data, callback) {
+        function get(url, data, callback) {
             $.ajax({
                         method: "GET",
                         url: url,
@@ -65,14 +55,14 @@
         var timeoutID = null;
         var currentGameID = null;
 
-        var refresh = function () {
+        function refresh() {
             getGame(currentGameID);
         }
 
-        var bet = function () {
+        function bet() {
             var betOnHost = $("#bet-on-host:checked").length > 0;
             var betOnVisitor = $("#bet-on-visitor:checked").length > 0;
-            var amount = $("#bet-amount").value();
+            var amount = $("#bet-amount")[0].value;
 
             if (amount != "" && (betOnHost || betOnVisitor)) {
                 var betOn;
@@ -89,16 +79,11 @@
             }
         }
 
-        $(document).ready(function () {
-            $("#btn-bet").click(bet);
-            $("#btn-refresh").click(refresh);
-        });
-
-        var formatTime = function (timeInSeconds) {
+        function formatTime(timeInSeconds) {
             return Math.floor(timeInSeconds / 60) + ":" + ("0" + timeInSeconds % 60).slice(-2);
         }
 
-        var setGoals = function (list, goals) {
+        function setGoals(list, goals) {
             list.text("");
             $.each(goals, function (i, goal) {
                 var line = $("<p>");
@@ -107,7 +92,7 @@
             });
         }
 
-        var setPenalties = function (list, penalties) {
+        function setPenalties(list, penalties) {
             list.text("");
             $.each(penalties, function (i, penalty) {
                 var line = $("<p>");
@@ -116,7 +101,7 @@
             });
         }
 
-        var getGame = function (gameID) {
+        function getGame(gameID) {
             $("#btn-refresh").attr("disabled", true);
             $("#btn-refresh").text("Updating");
             clearTimeout(timeoutID);
@@ -128,7 +113,7 @@
             });
 
             get("servlets/gameinfo", {GameID: gameID}, function (data) {
-                gameSection.removeClass("hidden");
+                $("#game-section").removeClass("hidden");
 
                 var gameInfo = data;//jQuery.parseJSON(data);
                 $("#game-section-title").text(game.Host + " vs " + game.Visitor);
@@ -144,36 +129,47 @@
                 setPenalties($("#host-penalties-list"), gameInfo.HostPenalties);
                 setPenalties($("#visitor-penalties-list"), gameInfo.VisitorPenalties);
 
-                $("#btn-refresh").text("Refresh");
-                $("#btn-refresh").attr("disabled", false);
                 timeoutID = setTimeout(refresh, 120000);
+                setTimeout(function() {
+                    $("#btn-refresh").text("Refresh");
+                    $("#btn-refresh").attr("disabled", false);
+                }, 2000);
             });
         }
 
-        get("servlets/gamelist", {}, function (data) {
-            games = data;
+        function getGames() {
+            get("servlets/gamelist", {}, function (data) {
+                games = data;
 
-            $.each(games, function (i, game) {
-                games.push(game);
+                $.each(games, function (i, game) {
+                    games.push(game);
 
-                var btnGame = $("<a>");
-                btnGame.text(game.Host + " vs " + game.Visitor);
-                btnGame.click(function () {
-                    currentGameID = game.GameID;
-                    getGame(game.GameID);
+                    var btnGame = $("<a>");
+                    btnGame.text(game.Host + " vs " + game.Visitor);
+                    btnGame.click(function () {
+                        currentGameID = game.GameID;
+                        getGame(game.GameID);
+                    });
+                    $("#games-section").append(btnGame).append("<br/>");
                 });
-                $("#games-section").append(btnGame).append("<br/>");
+
+                if (cptBet > 0) {
+                    get("betResults", {}, function (data) {
+                        $.each(data, function (i, obj) {
+                            cptBet = cptBet - 1;
+                            Cookies.set('bet', cptBet, {expires: 7, path: ''});
+                            //TODO
+                        })
+                    });
+                }
             });
+        }
 
-            if (cptBet > 0) {
-                get("betResults", {}, function (data) {
-                    $.each(data, function (i, obj) {
-                        cptBet = cptBet - 1;
-                        Cookies.set('bet', cptBet, {expires: 7, path: ''});
-                        //TODO
-                    })
-                });
-            }
+        $( document ).ready(function() {
+            getGames();
+
+            $("#btn-bet").click(bet);
+            $("#btn-refresh").click(refresh);
         });
     </script>
 </head>
@@ -240,7 +236,7 @@
                             <input id="bet-on-host" name="bet-on" type="radio" value="host"> Host
                             <input id="bet-on-visitor" name="bet-on" type="radio" value="visitor"> Visitor
                             <br>
-                            Amount: <input id="betAmount" type="number" min="0">
+                            Amount: <input id="bet-amount" type="number" min="0">
                             <button id="btn-bet">Bet</button>
                         </td>
                     </tr>
