@@ -32,15 +32,16 @@ public class GameEventUpdateTask implements Runnable {
                 Goal go = TryAddGoal(info);
                 if (go != null) {
                     System.out.println("Added goal " + go.toString() + " in game " + g.toString());
+                    NotificationServlet.addEvent(g.toString() + " - " + go.toString());
                 }
 
                 Penalty p = TryAddPenalty(info);
                 if (p != null) {
                     System.out.println("Added penalty " + p.toString() + " in game " + g.toString());
+                    NotificationServlet.addEvent(g.toString() + " - " + p.toString());
                 }
             }
-        }
-        finally {
+        } finally {
             System.out.println("Event update : Releasing lock");
             server.UnlockUpdates();
         }
@@ -49,18 +50,12 @@ public class GameEventUpdateTask implements Runnable {
     private Goal TryAddGoal(GameInfo info) {
         Goal g = GameFactory.TryCreateGoal(info);
         if (g == null) return null;
-
-        //TODO: Created a goal for a team => Prepare a notification for Android client
-        NotificationServlet.addEvent(g.toString());
         return g;
     }
 
     private Penalty TryAddPenalty(GameInfo info) {
         Penalty p = GameFactory.TryCreatePenalty(info);
         if (p == null) return null;
-
-        //TODO: Created a penalty for a team => Prepare a notification for Android client
-        NotificationServlet.addEvent(p.toString());
         return p;
     }
 }
