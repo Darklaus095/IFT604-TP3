@@ -51,7 +51,7 @@ public class GameEventUpdateTask implements Runnable {
         if (g == null) return null;
 
         //TODO: Created a goal for a team => Prepare a notification for Android client
-        //NotificationServlet.AddMessage();
+        NotificationServlet.addEvent(g.toString());
         return g;
     }
 
@@ -60,6 +60,7 @@ public class GameEventUpdateTask implements Runnable {
         if (p == null) return null;
 
         //TODO: Created a penalty for a team => Prepare a notification for Android client
+        NotificationServlet.addEvent(p.toString());
         return p;
     }
 }
