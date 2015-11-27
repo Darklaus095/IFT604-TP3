@@ -8,6 +8,9 @@ import java.io.Serializable;
  * Bruno-Pier Touchette     13045732
  */
 public class Bet implements Serializable {
+    private static int BetID = 0;
+    private final int ID;
+
     private double amount;
     private String betOn;
     private int gameID;
@@ -18,10 +21,21 @@ public class Bet implements Serializable {
         this.betOn = team;
         this.gameID = gameID;
         this.amountGained = 0;
+        this.ID = GetNextID();
     }
 
-    public double getAmount() { return this.amount; }
-    public void setAmount(double amount) { this.amount = amount; }
+    private static int GetNextID() {
+        if (Integer.MAX_VALUE == BetID) BetID = 0;
+        return ++BetID;
+    }
+
+    public double getAmount() {
+        return this.amount;
+    }
+
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
 
     public int getGameID() {
         return gameID;
@@ -31,8 +45,13 @@ public class Bet implements Serializable {
         this.gameID = gameID;
     }
 
-    public String getBetOn() { return this.betOn; }
-    public void setBetOn(String betOn) { this.betOn = betOn; }
+    public String getBetOn() {
+        return this.betOn;
+    }
+
+    public void setBetOn(String betOn) {
+        this.betOn = betOn;
+    }
 
     public double getAmountGained() {
         return amountGained;
@@ -40,5 +59,14 @@ public class Bet implements Serializable {
 
     public void setAmountGained(double amountGained) {
         this.amountGained = amountGained;
+    }
+
+    public int getID() {
+        return ID;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Bet for: %s  Amount gained: %.3f$ Amount betted: %.3f$", betOn, amountGained, amount);
     }
 }
