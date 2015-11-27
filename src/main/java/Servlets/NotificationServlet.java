@@ -1,11 +1,15 @@
 package Servlets;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,6 +35,28 @@ public class NotificationServlet extends HttpServlet {
         }
     }
 
+    private List<Integer> getBetIDs(HttpServletRequest request) {
+        List<Integer> ids = new ArrayList<>();
+        Cookie betCookie = null;
+
+        for (Cookie cookie : request.getCookies()) {
+            if(cookie.getName().equals("bet"))
+                betCookie = cookie;
+        }
+
+        if(betCookie == null)
+            return ids;
+
+
+        JsonElement element = new JsonParser().parse(betCookie.getValue().replace("%2C", ","));
+        JsonArray array = element.getAsJsonArray();
+        for (int i = 0; i < array.size(); ++i) {
+            ids.add(array.get(i).getAsInt());
+        }
+
+        return ids;
+    }
+
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         //content type must be set to text/event-stream
         response.setContentType("text/event-stream");
@@ -42,6 +68,8 @@ public class NotificationServlet extends HttpServlet {
 
         String lastEventID = request.getHeader("Last-Event-ID");
         int last = lastEventID != null ? Integer.parseInt(lastEventID) : -1;
+
+        List<Integer> betIDs = getBetIDs(request);
 
         synchronized (events) {
             for (int i = last+1; i < events.size(); ++i) {
