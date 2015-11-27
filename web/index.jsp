@@ -104,9 +104,14 @@
                     betOn = $("#visitor-name").text();
 
                 post("servlets/placebet", {teamName: betOn, amount: amount, GameID: currentGameID}, function (data) {
-                    arrayBet.push(data.ID);
-                    Cookies.set('bet', arrayBet, {expires: 7, path: ''});
-                    TimedMessage.createMessage("Confirmation number : " + data.ID);
+
+                    if(data.ID == -1){
+                        TimedMessage.createMessage("Could not place bet.");
+                    }else {
+                        arrayBet.push(data.ID);
+                        Cookies.set('bet', arrayBet, {expires: 7, path: ''});
+                        TimedMessage.createMessage("Confirmation number : " + data.ID);
+                    }
                 });
             }
         }

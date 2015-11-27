@@ -53,7 +53,7 @@ public class ServerService {
         return server.PlaceBet(bet);
     }
 
-    public Bet getBetResult(int gameID) {
-        return server.getBetResult(gameID);
+    public Bet getBetResult(int betID) {
+        return server.getBetResult(betID);
     }
 }
