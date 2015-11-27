@@ -23,44 +23,44 @@
         function arrayRemove(array, element) {
             var index = array.indexOf(element);
             if (index > -1)
-                array.splice(index, 1);
+                array = array.splice(index, 1);
 
             return array;
         }
 
-        var cptBet = Cookies.get('bet');
-        if (cptBet == undefined) {
-            cptBet = 0;
-            Cookies.set('bet', cptBet, {expires: 7, path: ''});
+        var arrayBet = Cookies.get('bet');
+        if (arrayBet == undefined) {
+            arrayBet = [];
+            Cookies.set('bet', jsonStringnify(arrayBet), {expires: 7, path: ''});
         }
-        //Cookies.set('bet', jsonStringnify([1, 2, 3, 4]), {expires: 7, path: ''});
 
         var eventSource = new EventSource("servlets/notification");
 
         var games = new Array();
 
+        function showNotification(message) {
+            notificationSection.prepend("<p>" + message + "</p>");
+            if (notificationSection.children().length > 10)
+                notificationSection.children().last().remove();
+
+            TimedMessage.createMessage(message);
+        }
+
         eventSource.onmessage = function (event) {
             var notificationSection = $("#notification-section");
-            //var obj = jQuery.parseJSON(event.data);
-
             var hockeyEvent = jQuery.parseJSON(event.data);
-            //TODO
-            if (hockeyEvent.gameId == currentGameID) {
-                notificationSection.prepend("<p>" + hockeyEvent.description + "</p>");
-                if (notificationSection.children().length > 10)
-                    notificationSection.children().last().remove();
 
-                TimedMessage.createMessage(hockeyEvent.description);
-            }
+            showNotification(hockeyEvent.description);
         };
 
-        eventSource.addEventListener('up_vote', function (event) {
+        eventSource.addEventListener('bet-result', function (event) {
             //TODO
             var hockeyEvent = jQuery.parseJSON(event.data);
-            if (hockeyEvent.gameId == currentGameID) {
-                $("#notification-section").prepend("<p>" + hockeyEvent.description + "</p>");
-                TimedMessage.createMessage(hockeyEvent.description);
-            }
+            hockeyEvent.betID;
+            arrayBet = arrayRemove(arrayBet, hockeyEvent.betID);
+            Cookies.set('bet', jsonStringnify(arrayBet), {expires: 7, path: ''});
+
+            showNotification(hockeyEvent.description);
         }, false);
 
         function post(url, data, callback) {
@@ -103,9 +103,10 @@
                     betOn = $("#visitor-name").text();
 
                 post("servlets/placebet", {teamName: betOn, amount: amount, GameID: currentGameID}, function (data) {
-                    cptBet = cptBet + 1;
-                    Cookies.set('bet', cptBet, {expires: 7, path: ''});
-                    TimedMessage.createMessage("Confirmation number : " + data);
+                    data.ID
+                    arrayBet.push(data.ID);
+                    Cookies.set('bet', arrayBet, {expires: 7, path: ''});
+                    TimedMessage.createMessage("Confirmation number : " + data.ID);
                 });
             }
         }
@@ -184,14 +185,15 @@
                     $("#games-section").append(btnGame).append("<br/>");
                 });
 
-                if (cptBet > 0) {
-                    get("betResults", {}, function (data) {
-                        $.each(data, function (i, obj) {
-                            cptBet = cptBet - 1;
-                            Cookies.set('bet', cptBet, {expires: 7, path: ''});
-                            //TODO
-                        })
-                    });
+                if (arrayBet.length > 0) {
+                    $.each(arrayBet, function (i, betID) {
+                        get("servlets/betresult", {BetID: betID}, function (bet) {
+                            arrayBet = arrayRemove(arrayBet, betID);
+                            Cookies.set('bet', arrayBet, {expires: 7, path: ''});
+
+                            showNotification("Bet for: "+bet.betOn+"  Amount gained: "+bet.amountGained.toFixed(2)+"$ Amount betted: "+bet.amount.toFixed(2)+"$");
+                        });
+                    })
                 }
             });
         }

@@ -13,4 +13,16 @@ public class HockeyEvent {
         this.description = description;
         this.betId = betId;
     }
+
+    public int getBetId() {
+        return betId;
+    }
+
+    public int getGameId() {
+        return gameId;
+    }
+
+    public String getDescription() {
+        return description;
+    }
 }

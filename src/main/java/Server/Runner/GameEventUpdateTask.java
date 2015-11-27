@@ -30,15 +30,15 @@ public class GameEventUpdateTask implements Runnable {
                 Goal go = TryAddGoal(info);
                 if (go != null) {
                     System.out.println("Added goal " + go.toString() + " in game " + g.toString());
-                    NotificationServlet.addEvent(JsonSerializer.serialize(new HockeyEvent(g.getGameID(),
-                            g.toString() + " - " + go.toString(),-1)));
+                    NotificationServlet.addEvent(new HockeyEvent(g.getGameID(),
+                            g.toString() + " - " + go.toString(),-1));
                 }
 
                 Penalty p = TryAddPenalty(info);
                 if (p != null) {
                     System.out.println("Added penalty " + p.toString() + " in game " + g.toString());
-                    NotificationServlet.addEvent(JsonSerializer.serialize(new HockeyEvent(g.getGameID(),
-                            g.toString() + " - " + p.toString(),-1)));
+                    NotificationServlet.addEvent(new HockeyEvent(g.getGameID(),
+                            g.toString() + " - " + p.toString(),-1));
 
                 }
             }
