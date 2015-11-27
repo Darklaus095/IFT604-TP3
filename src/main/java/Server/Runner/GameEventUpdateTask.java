@@ -1,9 +1,7 @@
 package Server.Runner;
 
-import Common.Models.Game;
-import Common.Models.GameInfo;
-import Common.Models.Goal;
-import Common.Models.Penalty;
+import Common.Models.*;
+import Common.helpers.JsonSerializer;
 import Server.Factory.GameFactory;
 import Server.Server;
 import Servlets.NotificationServlet;
@@ -32,13 +30,16 @@ public class GameEventUpdateTask implements Runnable {
                 Goal go = TryAddGoal(info);
                 if (go != null) {
                     System.out.println("Added goal " + go.toString() + " in game " + g.toString());
-                    NotificationServlet.addEvent(g.toString() + " - " + go.toString());
+                    NotificationServlet.addEvent(JsonSerializer.serialize(new HockeyEvent(g.getGameID(),
+                            g.toString() + " - " + go.toString())));
                 }
 
                 Penalty p = TryAddPenalty(info);
                 if (p != null) {
                     System.out.println("Added penalty " + p.toString() + " in game " + g.toString());
-                    NotificationServlet.addEvent(g.toString() + " - " + p.toString());
+                    NotificationServlet.addEvent(JsonSerializer.serialize(new HockeyEvent(g.getGameID(),
+                            g.toString() + " - " + p.toString())));
+
                 }
             }
         } finally {

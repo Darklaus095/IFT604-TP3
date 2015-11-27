@@ -21,24 +21,28 @@
 
         eventSource.onmessage = function (event) {
             var notificationSection = $("#notification-section");
-            //var obj = jQuery.parseJSON(event.data);
-            //TODO
-            notificationSection.prepend("<p>" + event.data + "</p>");
-            if (notificationSection.children().length > 10)
-                notificationSection.children().last().remove();
 
-            TimedMessage.createMessage(event.data);
+            //TODO
+            var hockeyEvent = jQuery.parseJSON(event.data);
+
+            if (currentGameID == hockeyEvent.gameId) {
+                notificationSection.prepend("<p>" + hockeyEvent.description + "</p>");
+                if (notificationSection.children().length > 10)
+                    notificationSection.children().last().remove();
+
+                TimedMessage.createMessage(hockeyEvent.description);
+            }
         };
 
         eventSource.addEventListener('up_vote', function (event) {
             //TODO
-            $("#notification-section").prepend("<p>" + event.data + "</p>");
-            TimedMessage.createMessage(event.data);
-        }, false);
+            var hockeyEvent = jQuery.parseJSON(event.data);
 
-        $(document).ready(function(){
-            TimedMessage.createMessage("<p> TEST TEST </p>");
-        })
+            if (currentGameID == hockeyEvent.gameId) {
+                $("#notification-section").prepend("<p>" + hockeyEvent.description + "</p>");
+                TimedMessage.createMessage(hockeyEvent.description);
+            }
+        }, false);
 
         var gameSection = $("#game-section");
 
@@ -85,8 +89,10 @@
             }
         }
 
-        $("#btn-bet").click(bet);
-        $("#btn-refresh").click(refresh);
+        $(document).ready(function () {
+            $("#btn-bet").click(bet);
+            $("#btn-refresh").click(refresh);
+        });
 
         var formatTime = function (timeInSeconds) {
             return Math.floor(timeInSeconds / 60) + ":" + ("0" + timeInSeconds % 60).slice(-2);
