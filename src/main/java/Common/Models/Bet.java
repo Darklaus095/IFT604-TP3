@@ -67,6 +67,6 @@ public class Bet implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("Bet for: %s  Amount gained: %.3f$ Amount betted: %.3f$", betOn, amountGained, amount);
+        return String.format("Bet for: %s  Amount gained: %.2f$ Amount betted: %.2f$", betOn, amountGained, amount);
     }
 }

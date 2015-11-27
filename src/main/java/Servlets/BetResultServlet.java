@@ -23,7 +23,7 @@ public class BetResultServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         logger.info("Getting bet result from server");
 
-        Bet bet = ServerService.getInstance().getBetResult(Integer.parseInt(request.getParameter("GameID")));
+        Bet bet = ServerService.getInstance().getBetResult(Integer.parseInt(request.getParameter("BetID")));
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");

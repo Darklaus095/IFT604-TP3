@@ -75,10 +75,20 @@ public class NotificationServlet extends HttpServlet {
 
         synchronized (events) {
             for (int i = last+1; i < events.size(); ++i) {
-                writer.write("id: " + i + "\n");
-                writer.write("data: " + JsonSerializer.serialize(events.get(i)) + "\n\n");
-                writer.flush();
-                logger.info("Sending event" + JsonSerializer.serialize(events.get(i)));
+                HockeyEvent event = events.get(i);
+
+                if(event.getBetId() < 0) {
+                    writer.write("id: " + i + "\n");
+                    writer.write("data: " + JsonSerializer.serialize(events.get(i)) + "\n\n");
+                    writer.flush();
+                    logger.info("Sending event" + JsonSerializer.serialize(events.get(i)));
+                } else if(betIDs.contains(event.getBetId())) {
+                    writer.write("id: " + i + "\n");
+                    writer.write("event: bet-result\n");
+                    writer.write("data: " + JsonSerializer.serialize(events.get(i)) + "\n\n");
+                    writer.flush();
+                    logger.info("Sending event" + JsonSerializer.serialize(events.get(i)));
+                }
             }
         }
 
