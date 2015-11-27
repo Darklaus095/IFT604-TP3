@@ -32,6 +32,8 @@
         if (arrayBet == undefined) {
             arrayBet = [];
             Cookies.set('bet', jsonStringnify(arrayBet), {expires: 7, path: ''});
+        } else {
+            arrayBet = $.parseJSON(arrayBet);
         }
 
         var eventSource = new EventSource("servlets/notification");
@@ -39,6 +41,7 @@
         var games = new Array();
 
         function showNotification(message) {
+            var notificationSection = $("#notification-section");
             notificationSection.prepend("<p>" + message + "</p>");
             if (notificationSection.children().length > 10)
                 notificationSection.children().last().remove();
@@ -47,16 +50,14 @@
         }
 
         eventSource.onmessage = function (event) {
-            var notificationSection = $("#notification-section");
             var hockeyEvent = jQuery.parseJSON(event.data);
 
             showNotification(hockeyEvent.description);
         };
 
         eventSource.addEventListener('bet-result', function (event) {
-            //TODO
             var hockeyEvent = jQuery.parseJSON(event.data);
-            hockeyEvent.betID;
+
             arrayBet = arrayRemove(arrayBet, hockeyEvent.betID);
             Cookies.set('bet', jsonStringnify(arrayBet), {expires: 7, path: ''});
 
@@ -103,7 +104,6 @@
                     betOn = $("#visitor-name").text();
 
                 post("servlets/placebet", {teamName: betOn, amount: amount, GameID: currentGameID}, function (data) {
-                    data.ID
                     arrayBet.push(data.ID);
                     Cookies.set('bet', arrayBet, {expires: 7, path: ''});
                     TimedMessage.createMessage("Confirmation number : " + data.ID);
@@ -174,8 +174,6 @@
                 games = data;
 
                 $.each(games, function (i, game) {
-                    games.push(game);
-
                     var btnGame = $("<a>");
                     btnGame.text(game.Host + " vs " + game.Visitor);
                     btnGame.click(function () {
@@ -188,10 +186,12 @@
                 if (arrayBet.length > 0) {
                     $.each(arrayBet, function (i, betID) {
                         get("servlets/betresult", {BetID: betID}, function (bet) {
-                            arrayBet = arrayRemove(arrayBet, betID);
-                            Cookies.set('bet', arrayBet, {expires: 7, path: ''});
+                            if (bet != null) {
+                                arrayBet = arrayRemove(arrayBet, betID);
+                                Cookies.set('bet', arrayBet, {expires: 7, path: ''});
 
-                            showNotification("Bet for: "+bet.betOn+"  Amount gained: "+bet.amountGained.toFixed(2)+"$ Amount betted: "+bet.amount.toFixed(2)+"$");
+                                showNotification("Bet for: " + bet.betOn + "  Amount gained: " + bet.amountGained.toFixed(2) + "$ Amount betted: " + bet.amount.toFixed(2) + "$");
+                            }
                         });
                     })
                 }
