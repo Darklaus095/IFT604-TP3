@@ -74,7 +74,7 @@
                 post("servlets/placebet", {betOn: betOn, amount: amount, gameID: currentGameID}, function (data) {
                     cptBet = cptBet + 1;
                     Cookies.set('bet', cptBet, {expires: 7, path: ''});
-                    alert(data);
+                    TimedMessage.createMessage("Confirmation number : " + data);
                 });
             }
         }
