@@ -9,11 +9,31 @@
     <script src="scripts/timed-message.js"></script>
     <script>
 
+        function jsonStringnify(array) {
+            var string = "[";
+            $.each(array, function(i,element) {
+                string = string + element;
+                if(i < array.length -1)
+                    string = string + ",";
+            });
+            string = string + "]";
+            return string;
+        }
+
+        function arrayRemove(array, element) {
+            var index = array.indexOf(element);
+            if (index > -1)
+                array.splice(index, 1);
+
+            return array;
+        }
+
         var cptBet = Cookies.get('bet');
         if (cptBet == undefined) {
             cptBet = 0;
             Cookies.set('bet', cptBet, {expires: 7, path: ''});
         }
+        //Cookies.set('bet', jsonStringnify([1, 2, 3, 4]), {expires: 7, path: ''});
 
         var eventSource = new EventSource("servlets/notification");
 
@@ -37,7 +57,11 @@
         }, false);
 
         function post(url, data, callback) {
-            $.post(url, data).done(callback);
+            $.post(url, data)
+                    .done(callback)
+                    .fail(function (jqXHR, textStatus, errorThrown) {
+                        alert(textStatus + ": " + errorThrown);
+            });
         }
 
         function get(url, data, callback) {
@@ -71,7 +95,7 @@
                 if (betOnVisitor)
                     betOn = $("#visitor-name").text();
 
-                post("servlets/placebet", {betOn: betOn, amount: amount, gameID: currentGameID}, function (data) {
+                post("servlets/placebet", {teamName: betOn, amount: amount, GameID: currentGameID}, function (data) {
                     cptBet = cptBet + 1;
                     Cookies.set('bet', cptBet, {expires: 7, path: ''});
                     alert(data);

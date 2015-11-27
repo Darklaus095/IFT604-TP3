@@ -24,9 +24,9 @@ public class PlaceBetServlet extends HttpServlet{
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         logger.info("Placing bet in server");
 
-        int id = Integer.getInteger(request.getParameter("GameID"));
+        int id = Integer.parseInt(request.getParameter("GameID"));
         String team = request.getParameter("teamName");
-        double amount = Double.valueOf(request.getParameter("amount"));
+        double amount = Double.parseDouble(request.getParameter("amount"));
 
         ServerService.getInstance().putBet(new Bet(amount, team, id));
     }
