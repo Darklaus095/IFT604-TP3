@@ -41,6 +41,7 @@
         var games = new Array();
 
         function showNotification(message) {
+            var notificationSection = $("#notification-section");
             notificationSection.prepend("<p>" + message + "</p>");
             if (notificationSection.children().length > 10)
                 notificationSection.children().last().remove();
@@ -49,7 +50,6 @@
         }
 
         eventSource.onmessage = function (event) {
-            var notificationSection = $("#notification-section");
             var hockeyEvent = jQuery.parseJSON(event.data);
 
             showNotification(hockeyEvent.description);
@@ -186,10 +186,12 @@
                 if (arrayBet.length > 0) {
                     $.each(arrayBet, function (i, betID) {
                         get("servlets/betresult", {BetID: betID}, function (bet) {
-                            arrayBet = arrayRemove(arrayBet, betID);
-                            Cookies.set('bet', arrayBet, {expires: 7, path: ''});
+                            if (bet != null) {
+                                arrayBet = arrayRemove(arrayBet, betID);
+                                Cookies.set('bet', arrayBet, {expires: 7, path: ''});
 
-                            showNotification("Bet for: "+bet.betOn+"  Amount gained: "+bet.amountGained.toFixed(2)+"$ Amount betted: "+bet.amount.toFixed(2)+"$");
+                                showNotification("Bet for: " + bet.betOn + "  Amount gained: " + bet.amountGained.toFixed(2) + "$ Amount betted: " + bet.amount.toFixed(2) + "$");
+                            }
                         });
                     })
                 }
