@@ -1,21 +1,18 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: Utilisateur
-  Date: 2015-11-24
-  Time: 10:28 AM
-  To change this template use File | Settings | File Templates.
---%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
     <title>HockeyLive</title>
+    <link rel="stylesheet" href="styles/index.css"/>
+    <link rel="stylesheet" href="styles/timed-message.css"/>
     <script src="scripts/jquery-2.1.4.min.js"></script>
     <script src="scripts/js.cookie.js"></script>
+    <script src="scripts/timed-message.js"></script>
     <script>
+
         var cptBet = Cookies.get('bet');
-        if(cptBet == undefined) {
+        if (cptBet == undefined) {
             cptBet = 0;
-            Cookies.set('bet', cptBet, { expires: 7, path: '' });
+            Cookies.set('bet', cptBet, {expires: 7, path: ''});
         }
 
         var eventSource = new EventSource("servlets/notification");
@@ -27,16 +24,21 @@
             //var obj = jQuery.parseJSON(event.data);
             //TODO
             notificationSection.prepend("<p>" + event.data + "</p>");
-            if(notificationSection.children().length > 10)
+            if (notificationSection.children().length > 10)
                 notificationSection.children().last().remove();
 
-            alert(event.data);
+            TimedMessage.createMessage("event.data");
         };
 
         eventSource.addEventListener('up_vote', function (event) {
             //TODO
             $("#notification-section").prepend("<p>" + event.data + "</p>");
+            TimedMessage.createMessage("event.data");
         }, false);
+
+        $(document).ready(function(){
+            TimedMessage.createMessage("<p> TEST TEST </p>");
+        })
 
         var gameSection = $("#game-section");
 
@@ -46,12 +48,12 @@
 
         var get = function (url, data, callback) {
             $.ajax({
-                method: "GET",
-                url: url,
-                data: data
-            })
+                        method: "GET",
+                        url: url,
+                        data: data
+                    })
                     .done(callback)
-                    .fail(function( jqXHR, textStatus, errorThrown ) {
+                    .fail(function (jqXHR, textStatus, errorThrown) {
                         alert(textStatus + ": " + errorThrown);
                     });
         }
@@ -63,21 +65,21 @@
             getGame(currentGameID);
         }
 
-        var bet = function() {
+        var bet = function () {
             var betOnHost = $("#bet-on-host:checked").length > 0;
             var betOnVisitor = $("#bet-on-visitor:checked").length > 0;
             var amount = $("#bet-amount").value();
 
-            if(amount != "" && (betOnHost || betOnVisitor)) {
+            if (amount != "" && (betOnHost || betOnVisitor)) {
                 var betOn;
-                if(betOnHost)
+                if (betOnHost)
                     betOn = $("#host-name").text();
-                if(betOnVisitor)
+                if (betOnVisitor)
                     betOn = $("#visitor-name").text();
 
-                post("servlets/placebet", {betOn: betOn, amount: amount, gameID: currentGameID}, function(data) {
+                post("servlets/placebet", {betOn: betOn, amount: amount, gameID: currentGameID}, function (data) {
                     cptBet = cptBet + 1;
-                    Cookies.set('bet', cptBet, { expires: 7, path: '' });
+                    Cookies.set('bet', cptBet, {expires: 7, path: ''});
                     alert(data);
                 });
             }
@@ -86,22 +88,22 @@
         $("#btn-bet").click(bet);
         $("#btn-refresh").click(refresh);
 
-        var formatTime = function(timeInSeconds) {
-            return timeInSeconds / 60 + ":" + ("0" + timeInSeconds % 60).slice(-2);
+        var formatTime = function (timeInSeconds) {
+            return Math.floor(timeInSeconds / 60) + ":" + ("0" + timeInSeconds % 60).slice(-2);
         }
 
-        var setGoals = function(list, goals) {
+        var setGoals = function (list, goals) {
             list.text("");
-            $.each(goals, function(i, goal) {
+            $.each(goals, function (i, goal) {
                 var line = $("<p>");
                 line.text(goal.GoalHolder + " - " + goal.amount);
                 list.append(line);
             });
         }
 
-        var setPenalties = function(list, penalties) {
+        var setPenalties = function (list, penalties) {
             list.text("");
-            $.each(penalties, function(i, penalty) {
+            $.each(penalties, function (i, penalty) {
                 var line = $("<p>");
                 line.text(penalty.PenaltyHolder + " - " + formatTime(penalty.TimeLeft));
                 list.append(line);
@@ -115,7 +117,7 @@
 
             var game = null;
             $.each(games, function (i, data) {
-                if(data.GameID == gameID)
+                if (data.GameID == gameID)
                     game = data;
             });
 
@@ -148,20 +150,20 @@
             $.each(games, function (i, game) {
                 games.push(game);
 
-                var btnGame = $("<button>");
+                var btnGame = $("<a>");
                 btnGame.text(game.Host + " vs " + game.Visitor);
                 btnGame.click(function () {
                     currentGameID = game.GameID;
                     getGame(game.GameID);
                 });
-                $("#games-section").append(btnGame);
+                $("#games-section").append(btnGame).append("<br/>");
             });
 
-            if(cptBet > 0) {
-                get("betResults", {}, function(data) {
-                    $.each(data, function(i, obj) {
+            if (cptBet > 0) {
+                get("betResults", {}, function (data) {
+                    $.each(data, function (i, obj) {
                         cptBet = cptBet - 1;
-                        Cookies.set('bet', cptBet, { expires: 7, path: '' });
+                        Cookies.set('bet', cptBet, {expires: 7, path: ''});
                         //TODO
                     })
                 });
@@ -174,6 +176,7 @@
     <tr>
         <td style="width: 20%; vertical-align: top;">
             <h3>Games</h3>
+
             <div id="games-section"/>
         </td>
         <td style="width: 60%; vertical-align: top;">
@@ -186,11 +189,13 @@
                     <tr>
                         <td>
                             <h4 id="host-name">Test</h4>
+
                             <p>Goals: <span id="host-goals">0</span></p>
                             <h5>Goals</h5>
                         </td>
                         <td>
                             <h4 id="visitor-name">Test</h4>
+
                             <p>Goals: <span id="visitor-goals">0</span></p>
                             <h5>Goals</h5>
                         </td>
@@ -198,6 +203,7 @@
                     <tr>
                         <td id="host-goals-list" style="border: 1px black solid; width: 50%; vertical-align: top;">
                             <p>Test, 0</p>
+
                             <p>Test, 0</p>
                         </td>
                         <td id="visitor-goals-list" style="border: 1px black solid; width: 50%; vertical-align: top;">
@@ -216,8 +222,10 @@
                         <td id="host-penalties-list" style="border: 1px black solid; width: 50%; vertical-align: top;">
                             <p>Test, 2:00</p>
                         </td>
-                        <td id="visitor-penalties-list" style="border: 1px black solid; width: 50%; vertical-align: top;">
+                        <td id="visitor-penalties-list"
+                            style="border: 1px black solid; width: 50%; vertical-align: top;">
                             <p>Test, 2:00</p>
+
                             <p>Test, 2:00</p>
                         </td>
                     </tr>
@@ -235,9 +243,12 @@
         </td>
         <td style="width: 20%; vertical-align: top;">
             <h3>Events</h3>
+
             <div id="notification-section"/>
         </td>
     </tr>
 </table>
+
+<div id='notification' class="notification" style="display: none"></div>
 </body>
 </html>

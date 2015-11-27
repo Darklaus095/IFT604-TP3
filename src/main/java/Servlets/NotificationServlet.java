@@ -18,11 +18,11 @@ import java.util.List;
 @WebServlet(name = "NotificationServlet", urlPatterns = "/servlets/notification")
 public class NotificationServlet extends HttpServlet {
 
-    private static List<JsonObject> messages = new ArrayList<>();
+    private static List<String> events = new ArrayList<>();
 
-    public static void AddMessage(JsonObject message) {
-        synchronized (messages) {
-            messages.add(message);
+    public static void addEvent(String event) {
+        synchronized (events) {
+            events.add(event);
         }
     }
 
@@ -38,10 +38,9 @@ public class NotificationServlet extends HttpServlet {
         String lastEventID = request.getHeader("Last-Event-ID");
         int last = lastEventID != null ? Integer.parseInt(lastEventID) : -1;
 
-        synchronized (messages) {
-            for (int i = last+1; i < messages.size(); ++i) {
-                writer.write("id: " + i + "\n");
-                writer.write("data: " + messages.get(i).toString() + "\n\n");
+        synchronized (events) {
+            for (int i = last+1; i < events.size(); ++i) {
+                writer.write(events.get(i) + "\n");
                 writer.flush();
             }
         }
